@@ -1,0 +1,906 @@
+---
+title: "Bachelor"
+author: "Alberte Baggesgaard Seeberg"
+date: "20/10/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Setting working directory
+setwd("~/Desktop/Bachelor CogSci/5. semester/Bachelor/Data/Bachelor")
+
+#Loading packages
+library(stringr)
+library(plyr)
+library(dplyr)
+library(tidyverse)
+library(rethinking)
+library(ggplot2)
+library(hellno)
+library(apaTables)
+library(MuMIn)
+library(lme4)
+library(yarrr)
+
+```
+
+```{r}
+
+#Importing data from patients w. recent surgery
+NO <- do.call("rbind", lapply( list.files("~/Desktop/Bachelor CogSci/5. semester/Bachelor/Data/Bachelor/NO",full=TRUE),
+		read.csv2, header=TRUE))
+
+NO$Correct=as.integer(NO$Correct)
+NO$Correct=gsub("[4]", "0", NO$Correct)
+NO$Correct=gsub("[3]", "0", NO$Correct)
+NO$Correct=gsub("[2]", "0", NO$Correct)
+  
+NO=plyr::rename(NO, c("No."="No"))
+
+NO$Condition="CI_re"
+
+
+
+#Making Deviants--------
+
+NO$Deviant[NO$No == "1"] = "IntensitetXS"  
+NO$Deviant[NO$No == "17"] = "IntensitetXS"  
+NO$Deviant[NO$No == "33"] = "IntensitetXS"  
+NO$Deviant[NO$No == "2"] = "IntensitetS" 
+NO$Deviant[NO$No == "18"] = "IntensitetS"  
+NO$Deviant[NO$No == "34"] = "IntensitetS"
+NO$Deviant[NO$No == "3"] = "IntensitetL"  
+NO$Deviant[NO$No == "19"] = "IntensitetL"  
+NO$Deviant[NO$No == "35"] = "IntensitetL"  
+NO$Deviant[NO$No == "4"] = "IntensitetXL"  
+NO$Deviant[NO$No == "20"] = "IntensitetXL"  
+NO$Deviant[NO$No == "36"] = "IntensitetXL"
+NO$Deviant[NO$No == "5"] = "PitchXS" 
+NO$Deviant[NO$No == "21"] = "PitchXS" 
+NO$Deviant[NO$No == "37"] = "PitchXS" 
+NO$Deviant[NO$No == "6"] = "PitchS" 
+NO$Deviant[NO$No == "22"] = "PitchS" 
+NO$Deviant[NO$No == "38"] = "PitchS" 
+NO$Deviant[NO$No == "7"] = "PitchL" 
+NO$Deviant[NO$No == "23"] = "PitchL" 
+NO$Deviant[NO$No == "39"] = "PitchL" 
+NO$Deviant[NO$No == "8"] = "PitchXL"
+NO$Deviant[NO$No == "24"] = "PitchXL"
+NO$Deviant[NO$No == "40"] = "PitchXL"
+NO$Deviant[NO$No == "9"] = "TimbreBright"
+NO$Deviant[NO$No == "25"] = "TimbreBright"
+NO$Deviant[NO$No == "41"] = "TimbreBright"
+NO$Deviant[NO$No == "10"] = "TimbreBlues"
+NO$Deviant[NO$No == "26"] = "TimbreBlues"
+NO$Deviant[NO$No == "42"] = "TimbreBlues"
+NO$Deviant[NO$No == "11"] = "TimbreGuitar"
+NO$Deviant[NO$No == "27"] = "TimbreGuitar"
+NO$Deviant[NO$No == "43"] = "TimbreGuitar"
+NO$Deviant[NO$No == "12"] = "TimbreTrumpet"
+NO$Deviant[NO$No == "28"] = "TimbreTrumpet"
+NO$Deviant[NO$No == "44"] = "TimbreTrumpet"
+NO$Deviant[NO$No == "13"] = "RhythmXS"
+NO$Deviant[NO$No == "29"] = "RhythmXS"
+NO$Deviant[NO$No == "45"] = "RhythmXS"
+NO$Deviant[NO$No == "14"] = "RhythmS"
+NO$Deviant[NO$No == "30"] = "RhythmS"
+NO$Deviant[NO$No == "46"] = "RhythmS"
+NO$Deviant[NO$No == "15"] = "RhythmL"
+NO$Deviant[NO$No == "31"] = "RhythmL"
+NO$Deviant[NO$No == "47"] = "RhythmL"
+NO$Deviant[NO$No == "16"] = "RhythmXL"
+NO$Deviant[NO$No == "32"] = "RhythmXL"
+NO$Deviant[NO$No == "48"] = "RhythmXL"
+
+#------
+
+
+NO$DeviantLevel = rep(NA,nrow(NO))
+
+for (i in 1:nrow(NO)) {
+
+  if (str_detect(NO$Deviant[i], "XS")){
+    NO$DeviantLevel[i] = 1
+  }
+  NO$Deviant[i]=sub("XS","",NO$Deviant[i])
+  
+  if (str_detect(NO$Deviant[i], "S")){
+    NO$DeviantLevel[i] = 2
+  }
+  NO$Deviant[i]=sub("S","",NO$Deviant[i])
+  
+  if (str_detect(NO$Deviant[i], "XL")){
+    NO$DeviantLevel[i] = 4
+  }
+  NO$Deviant[i]=sub("XL","",NO$Deviant[i])
+  
+  if (str_detect(NO$Deviant[i], "L")){
+    NO$DeviantLevel[i] = 3
+  }
+  NO$Deviant[i]=sub("L","",NO$Deviant[i])
+  
+  if (str_detect(NO$Deviant[i], "Bright")){
+    NO$DeviantLevel[i] = 1
+  }
+  NO$Deviant[i]=sub("Bright","",NO$Deviant[i])
+  
+  if (str_detect(NO$Deviant[i], "Blues")){
+    NO$DeviantLevel[i] = 2
+  }
+  NO$Deviant[i]=sub("Blues","",NO$Deviant[i])
+  
+  if (str_detect(NO$Deviant[i], "Guitar")){
+    NO$DeviantLevel[i] = 3
+  }
+  NO$Deviant[i]=sub("Guitar","",NO$Deviant[i])
+  
+  if (str_detect(NO$Deviant[i], "Trumpet")){
+    NO$DeviantLevel[i] = 4
+  }
+  NO$Deviant[i]=sub("Trumpet","",NO$Deviant[i])
+  
+}
+
+
+write.csv(NO, file="NOdata")
+
+
+#Importing data from experienced CI users
+ER <- do.call("rbind", lapply( list.files("~/Desktop/Bachelor CogSci/5. semester/Bachelor/Data/Bachelor/Erfarne",full=TRUE),
+		read.csv2, header=TRUE))
+
+
+ER$Correct=as.integer(ER$Correct)
+ER$Correct=gsub("[4]", "0", ER$Correct)
+ER$Correct=gsub("[3]", "0", ER$Correct)
+ER$Correct=gsub("[2]", "0", ER$Correct)
+  
+ER$Condition="CI_ex"
+
+
+#Making Deviants--------
+
+ER$Deviant[ER$No == "1"] = "IntensitetXS"  
+ER$Deviant[ER$No == "17"] = "IntensitetXS"  
+ER$Deviant[ER$No == "33"] = "IntensitetXS"  
+ER$Deviant[ER$No == "2"] = "IntensitetS" 
+ER$Deviant[ER$No == "18"] = "IntensitetS"  
+ER$Deviant[ER$No == "34"] = "IntensitetS"
+ER$Deviant[ER$No == "3"] = "IntensitetL"  
+ER$Deviant[ER$No == "19"] = "IntensitetL"  
+ER$Deviant[ER$No == "35"] = "IntensitetL"  
+ER$Deviant[ER$No == "4"] = "IntensitetXL"  
+ER$Deviant[ER$No == "20"] = "IntensitetXL"  
+ER$Deviant[ER$No == "36"] = "IntensitetXL"
+ER$Deviant[ER$No == "5"] = "PitchXS" 
+ER$Deviant[ER$No == "21"] = "PitchXS" 
+ER$Deviant[ER$No == "37"] = "PitchXS" 
+ER$Deviant[ER$No == "6"] = "PitchS" 
+ER$Deviant[ER$No == "22"] = "PitchS" 
+ER$Deviant[ER$No == "38"] = "PitchS" 
+ER$Deviant[ER$No == "7"] = "PitchL" 
+ER$Deviant[ER$No == "23"] = "PitchL" 
+ER$Deviant[ER$No == "39"] = "PitchL" 
+ER$Deviant[ER$No == "8"] = "PitchXL"
+ER$Deviant[ER$No == "24"] = "PitchXL"
+ER$Deviant[ER$No == "40"] = "PitchXL"
+ER$Deviant[ER$No == "9"] = "TimbreBright"
+ER$Deviant[ER$No == "25"] = "TimbreBright"
+ER$Deviant[ER$No == "41"] = "TimbreBright"
+ER$Deviant[ER$No == "10"] = "TimbreBlues"
+ER$Deviant[ER$No == "26"] = "TimbreBlues"
+ER$Deviant[ER$No == "42"] = "TimbreBlues"
+ER$Deviant[ER$No == "11"] = "TimbreGuitar"
+ER$Deviant[ER$No == "27"] = "TimbreGuitar"
+ER$Deviant[ER$No == "43"] = "TimbreGuitar"
+ER$Deviant[ER$No == "12"] = "TimbreTrumpet"
+ER$Deviant[ER$No == "28"] = "TimbreTrumpet"
+ER$Deviant[ER$No == "44"] = "TimbreTrumpet"
+ER$Deviant[ER$No == "13"] = "RhythmXS"
+ER$Deviant[ER$No == "29"] = "RhythmXS"
+ER$Deviant[ER$No == "45"] = "RhythmXS"
+ER$Deviant[ER$No == "14"] = "RhythmS"
+ER$Deviant[ER$No == "30"] = "RhythmS"
+ER$Deviant[ER$No == "46"] = "RhythmS"
+ER$Deviant[ER$No == "15"] = "RhythmL"
+ER$Deviant[ER$No == "31"] = "RhythmL"
+ER$Deviant[ER$No == "47"] = "RhythmL"
+ER$Deviant[ER$No == "16"] = "RhythmXL"
+ER$Deviant[ER$No == "32"] = "RhythmXL"
+ER$Deviant[ER$No == "48"] = "RhythmXL"
+
+#------
+
+
+ER$DeviantLevel = rep(NA,nrow(ER))
+
+for (i in 1:nrow(ER)) {
+
+  if (str_detect(ER$Deviant[i], "XS")){
+    ER$DeviantLevel[i] = 1
+  }
+  ER$Deviant[i]=sub("XS","",ER$Deviant[i])
+  
+  if (str_detect(ER$Deviant[i], "S")){
+    ER$DeviantLevel[i] = 2
+  }
+  ER$Deviant[i]=sub("S","",ER$Deviant[i])
+  
+  if (str_detect(ER$Deviant[i], "XL")){
+    ER$DeviantLevel[i] = 4
+  }
+  ER$Deviant[i]=sub("XL","",ER$Deviant[i])
+  
+  if (str_detect(ER$Deviant[i], "L")){
+    ER$DeviantLevel[i] = 3
+  }
+  ER$Deviant[i]=sub("L","",ER$Deviant[i])
+  
+  if (str_detect(ER$Deviant[i], "Bright")){
+    ER$DeviantLevel[i] = 1
+  }
+  ER$Deviant[i]=sub("Bright","",ER$Deviant[i])
+  
+  if (str_detect(ER$Deviant[i], "Blues")){
+    ER$DeviantLevel[i] = 2
+  }
+  ER$Deviant[i]=sub("Blues","",ER$Deviant[i])
+  
+  if (str_detect(ER$Deviant[i], "Guitar")){
+    ER$DeviantLevel[i] = 3
+  }
+  ER$Deviant[i]=sub("Guitar","",ER$Deviant[i])
+  
+  if (str_detect(ER$Deviant[i], "Trumpet")){
+    ER$DeviantLevel[i] = 4
+  }
+  ER$Deviant[i]=sub("Trumpet","",ER$Deviant[i])
+  
+}
+
+write.csv(ER, file="ERdata")
+
+#Importing young control group
+
+UK <- do.call("rbind", lapply( list.files("~/Desktop/Bachelor CogSci/5. semester/Bachelor/Data/Bachelor/KontrolUnge",full=TRUE),
+		read.csv2, header=TRUE))
+
+
+UK$Correct=as.integer(UK$Correct)
+UK$Correct=gsub("[4]", "0", UK$Correct)
+UK$Correct=gsub("[3]", "0", UK$Correct)
+UK$Correct=gsub("[2]", "0", UK$Correct)
+
+UK$Condition="Control_y"
+
+#Making Deviants--------
+
+UK$Deviant[UK$No == "1"] = "IntensitetXS"  
+UK$Deviant[UK$No == "17"] = "IntensitetXS"  
+UK$Deviant[UK$No == "33"] = "IntensitetXS"  
+UK$Deviant[UK$No == "2"] = "IntensitetS" 
+UK$Deviant[UK$No == "18"] = "IntensitetS"  
+UK$Deviant[UK$No == "34"] = "IntensitetS"
+UK$Deviant[UK$No == "3"] = "IntensitetL"  
+UK$Deviant[UK$No == "19"] = "IntensitetL"  
+UK$Deviant[UK$No == "35"] = "IntensitetL"  
+UK$Deviant[UK$No == "4"] = "IntensitetXL"  
+UK$Deviant[UK$No == "20"] = "IntensitetXL"  
+UK$Deviant[UK$No == "36"] = "IntensitetXL"
+UK$Deviant[UK$No == "5"] = "PitchXS" 
+UK$Deviant[UK$No == "21"] = "PitchXS" 
+UK$Deviant[UK$No == "37"] = "PitchXS" 
+UK$Deviant[UK$No == "6"] = "PitchS" 
+UK$Deviant[UK$No == "22"] = "PitchS" 
+UK$Deviant[UK$No == "38"] = "PitchS" 
+UK$Deviant[UK$No == "7"] = "PitchL" 
+UK$Deviant[UK$No == "23"] = "PitchL" 
+UK$Deviant[UK$No == "39"] = "PitchL" 
+UK$Deviant[UK$No == "8"] = "PitchXL"
+UK$Deviant[UK$No == "24"] = "PitchXL"
+UK$Deviant[UK$No == "40"] = "PitchXL"
+UK$Deviant[UK$No == "9"] = "TimbreBright"
+UK$Deviant[UK$No == "25"] = "TimbreBright"
+UK$Deviant[UK$No == "41"] = "TimbreBright"
+UK$Deviant[UK$No == "10"] = "TimbreBlues"
+UK$Deviant[UK$No == "26"] = "TimbreBlues"
+UK$Deviant[UK$No == "42"] = "TimbreBlues"
+UK$Deviant[UK$No == "11"] = "TimbreGuitar"
+UK$Deviant[UK$No == "27"] = "TimbreGuitar"
+UK$Deviant[UK$No == "43"] = "TimbreGuitar"
+UK$Deviant[UK$No == "12"] = "TimbreTrumpet"
+UK$Deviant[UK$No == "28"] = "TimbreTrumpet"
+UK$Deviant[UK$No == "44"] = "TimbreTrumpet"
+UK$Deviant[UK$No == "13"] = "RhythmXS"
+UK$Deviant[UK$No == "29"] = "RhythmXS"
+UK$Deviant[UK$No == "45"] = "RhythmXS"
+UK$Deviant[UK$No == "14"] = "RhythmS"
+UK$Deviant[UK$No == "30"] = "RhythmS"
+UK$Deviant[UK$No == "46"] = "RhythmS"
+UK$Deviant[UK$No == "15"] = "RhythmL"
+UK$Deviant[UK$No == "31"] = "RhythmL"
+UK$Deviant[UK$No == "47"] = "RhythmL"
+UK$Deviant[UK$No == "16"] = "RhythmXL"
+UK$Deviant[UK$No == "32"] = "RhythmXL"
+UK$Deviant[UK$No == "48"] = "RhythmXL"
+
+#------
+
+UK$DeviantLevel = rep(NA,nrow(UK))
+
+for (i in 1:nrow(UK)) {
+
+  if (str_detect(UK$Deviant[i], "XS")){
+    UK$DeviantLevel[i] = 1
+  }
+  UK$Deviant[i]=sub("XS","",UK$Deviant[i])
+  
+  if (str_detect(UK$Deviant[i], "S")){
+    UK$DeviantLevel[i] = 2
+  }
+  UK$Deviant[i]=sub("S","",UK$Deviant[i])
+  
+  if (str_detect(UK$Deviant[i], "XL")){
+    UK$DeviantLevel[i] = 4
+  }
+  UK$Deviant[i]=sub("XL","",UK$Deviant[i])
+  
+  if (str_detect(UK$Deviant[i], "L")){
+    UK$DeviantLevel[i] = 3
+  }
+  UK$Deviant[i]=sub("L","",UK$Deviant[i])
+  
+  if (str_detect(UK$Deviant[i], "Bright")){
+    UK$DeviantLevel[i] = 1
+  }
+  UK$Deviant[i]=sub("Bright","",UK$Deviant[i])
+  
+  if (str_detect(UK$Deviant[i], "Blues")){
+    UK$DeviantLevel[i] = 2
+  }
+  UK$Deviant[i]=sub("Blues","",UK$Deviant[i])
+  
+  if (str_detect(UK$Deviant[i], "Guitar")){
+    UK$DeviantLevel[i] = 3
+  }
+  UK$Deviant[i]=sub("Guitar","",UK$Deviant[i])
+  
+  if (str_detect(UK$Deviant[i], "Trumpet")){
+    UK$DeviantLevel[i] = 4
+  }
+  UK$Deviant[i]=sub("Trumpet","",UK$Deviant[i])
+  
+}
+
+write.csv(UK, file="UKdata")
+
+#Importing older control group
+
+ÆK <- do.call("rbind", lapply( list.files("~/Desktop/Bachelor CogSci/5. semester/Bachelor/Data/Bachelor/KontrolÆldre",full=TRUE),
+		read.csv2, header=TRUE))
+
+
+ÆK$Correct=as.integer(ÆK$Correct)
+ÆK$Correct=gsub("[4]", "0", ÆK$Correct)
+ÆK$Correct=gsub("[3]", "0", ÆK$Correct)
+ÆK$Correct=gsub("[2]", "0", ÆK$Correct)
+  
+ÆK$Condition="Control_e"
+
+#Making Deviants--------
+
+ÆK$Deviant[ÆK$No == "1"] = "IntensitetXS"  
+ÆK$Deviant[ÆK$No == "17"] = "IntensitetXS"  
+ÆK$Deviant[ÆK$No == "33"] = "IntensitetXS"  
+ÆK$Deviant[ÆK$No == "2"] = "IntensitetS" 
+ÆK$Deviant[ÆK$No == "18"] = "IntensitetS"  
+ÆK$Deviant[ÆK$No == "34"] = "IntensitetS"
+ÆK$Deviant[ÆK$No == "3"] = "IntensitetL"  
+ÆK$Deviant[ÆK$No == "19"] = "IntensitetL"  
+ÆK$Deviant[ÆK$No == "35"] = "IntensitetL"  
+ÆK$Deviant[ÆK$No == "4"] = "IntensitetXL"  
+ÆK$Deviant[ÆK$No == "20"] = "IntensitetXL"  
+ÆK$Deviant[ÆK$No == "36"] = "IntensitetXL"
+ÆK$Deviant[ÆK$No == "5"] = "PitchXS" 
+ÆK$Deviant[ÆK$No == "21"] = "PitchXS" 
+ÆK$Deviant[ÆK$No == "37"] = "PitchXS" 
+ÆK$Deviant[ÆK$No == "6"] = "PitchS" 
+ÆK$Deviant[ÆK$No == "22"] = "PitchS" 
+ÆK$Deviant[ÆK$No == "38"] = "PitchS" 
+ÆK$Deviant[ÆK$No == "7"] = "PitchL" 
+ÆK$Deviant[ÆK$No == "23"] = "PitchL" 
+ÆK$Deviant[ÆK$No == "39"] = "PitchL" 
+ÆK$Deviant[ÆK$No == "8"] = "PitchXL"
+ÆK$Deviant[ÆK$No == "24"] = "PitchXL"
+ÆK$Deviant[ÆK$No == "40"] = "PitchXL"
+ÆK$Deviant[ÆK$No == "9"] = "TimbreBright"
+ÆK$Deviant[ÆK$No == "25"] = "TimbreBright"
+ÆK$Deviant[ÆK$No == "41"] = "TimbreBright"
+ÆK$Deviant[ÆK$No == "10"] = "TimbreBlues"
+ÆK$Deviant[ÆK$No == "26"] = "TimbreBlues"
+ÆK$Deviant[ÆK$No == "42"] = "TimbreBlues"
+ÆK$Deviant[ÆK$No == "11"] = "TimbreGuitar"
+ÆK$Deviant[ÆK$No == "27"] = "TimbreGuitar"
+ÆK$Deviant[ÆK$No == "43"] = "TimbreGuitar"
+ÆK$Deviant[ÆK$No == "12"] = "TimbreTrumpet"
+ÆK$Deviant[ÆK$No == "28"] = "TimbreTrumpet"
+ÆK$Deviant[ÆK$No == "44"] = "TimbreTrumpet"
+ÆK$Deviant[ÆK$No == "13"] = "RhythmXS"
+ÆK$Deviant[ÆK$No == "29"] = "RhythmXS"
+ÆK$Deviant[ÆK$No == "45"] = "RhythmXS"
+ÆK$Deviant[ÆK$No == "14"] = "RhythmS"
+ÆK$Deviant[ÆK$No == "30"] = "RhythmS"
+ÆK$Deviant[ÆK$No == "46"] = "RhythmS"
+ÆK$Deviant[ÆK$No == "15"] = "RhythmL"
+ÆK$Deviant[ÆK$No == "31"] = "RhythmL"
+ÆK$Deviant[ÆK$No == "47"] = "RhythmL"
+ÆK$Deviant[ÆK$No == "16"] = "RhythmXL"
+ÆK$Deviant[ÆK$No == "32"] = "RhythmXL"
+ÆK$Deviant[ÆK$No == "48"] = "RhythmXL"
+
+#------
+
+ÆK$DeviantLevel = rep(NA,nrow(ÆK))
+
+for (i in 1:nrow(ÆK)) {
+
+  if (str_detect(ÆK$Deviant[i], "XS")){
+    ÆK$DeviantLevel[i] = 1
+  }
+  ÆK$Deviant[i]=sub("XS","",ÆK$Deviant[i])
+  
+  if (str_detect(ÆK$Deviant[i], "S")){
+    ÆK$DeviantLevel[i] = 2
+  }
+  ÆK$Deviant[i]=sub("S","",ÆK$Deviant[i])
+  
+  if (str_detect(ÆK$Deviant[i], "XL")){
+    ÆK$DeviantLevel[i] = 4
+  }
+  ÆK$Deviant[i]=sub("XL","",ÆK$Deviant[i])
+  
+  if (str_detect(ÆK$Deviant[i], "L")){
+    ÆK$DeviantLevel[i] = 3
+  }
+  ÆK$Deviant[i]=sub("L","",ÆK$Deviant[i])
+  
+  if (str_detect(ÆK$Deviant[i], "Bright")){
+    ÆK$DeviantLevel[i] = 1
+  }
+  ÆK$Deviant[i]=sub("Bright","",ÆK$Deviant[i])
+  
+  if (str_detect(ÆK$Deviant[i], "Blues")){
+    ÆK$DeviantLevel[i] = 2
+  }
+  ÆK$Deviant[i]=sub("Blues","",ÆK$Deviant[i])
+  
+  if (str_detect(ÆK$Deviant[i], "Guitar")){
+    ÆK$DeviantLevel[i] = 3
+  }
+  ÆK$Deviant[i]=sub("Guitar","",ÆK$Deviant[i])
+  
+  if (str_detect(ÆK$Deviant[i], "Trumpet")){
+    ÆK$DeviantLevel[i] = 4
+  }
+  ÆK$Deviant[i]=sub("Trumpet","",ÆK$Deviant[i])
+  
+}
+
+
+write.csv(ÆK, file="ÆKdata")
+
+#Importing questionnaire from patients w. recent surgery
+
+Q_NO=read.csv2("Spørgeskema_NO.csv", header=TRUE, sep=",", na.strings=c(""))
+
+#Renaming--------
+
+Q_NO=plyr::rename(Q_NO, c("Dato.for.første.operation"="DatoOp1", "Dato.for.evt..anden.operation"="DatoOp2", "Hvor.gammel.var.du.da.de.høretab.opstod"="AlderHoeretab", "Hvor.gammel.var.du.da.dit.høretab.blev.så.alvorligt.at.du.ikke.længere.havde.gavn.af.dit.høreapparat" = "AlderUdenGavnHoereapparat", "Kan.du.tale.i.telefon"="TaleTelefon", "Uddyb.1"="TaleTelefonUD.", "Havde.du.tinnitus.inden.din.CI.operation"="TinnitusPre", "Har.du.tinnitus.nu"="TinnitusPost", "Uddyb.2"="TinnitusUD.", "Bruger.du.høreapparat"="Hoereapparat", "Uddyb.3"="HoereapparatUD.", "Før..Jeg.valgte.ofte.at.lytte.til.musik..f.eks..bevidst.at.høre.radio.i.bilen.eller.hjemme..gå.til.koncerter..se.musikprogrammer.i.fjernsynet..osv.."="LyttevanerPre", "Efter..Jeg.vælger.at.lytte.til.musik..f.eks..bevidst.at.høre.radio.i.bilen.eller.hjemme..gå.til.koncerter..se.musikprogrammer.i.fjernsynet..osv.."="Lyttevaner"  ))
+
+#------
+
+Q_NO$DatoOp1[1]=Q_NO$DatoOp1[1]="16/1-2017"
+Q_NO$DatoOp1[2]=Q_NO$DatoOp1[2]=""
+Q_NO$DatoOp1[3]=Q_NO$DatoOp1[3]="13/3-2017"
+Q_NO$DatoOp1[4]=Q_NO$DatoOp1[4]=""
+Q_NO$DatoOp1[5]=Q_NO$DatoOp1[5]=""
+Q_NO$DatoOp1[6]=Q_NO$DatoOp1[6]=""
+Q_NO$DatoOp1[7]=Q_NO$DatoOp1[7]="29/9-2017"
+Q_NO$DatoOp1[8]=Q_NO$DatoOp1[8]="27/10-2017"
+Q_NO$DatoOp1[9]=Q_NO$DatoOp1[9]=""
+
+Q_NO$Køn[6]=Q_NO$Køn[6]="Mand"
+
+Q_NO$Køn[Q_NO$Køn =="mand"] = "Mand"
+
+Q_NO$Køn[Q_NO$Køn =="Mand"] = "Mand"
+
+#Q_NO=within(Q_NO, rm(Navn))
+
+#Cleaaaaan------
+Q_NO$AlderHoeretab=as.character(Q_NO$AlderHoeretab)
+Q_NO$AlderUdenGavnHoereapparat=as.character(Q_NO$AlderUdenGavnHoereapparat)
+Q_NO$AlderUdenGavnHoereapparat[Q_NO$AlderUdenGavnHoereapparat=="2009"] = "71"
+Q_NO$AlderHoeretab[Q_NO$AlderHoeretab=="i 50'erne"] = "50"
+Q_NO$AlderHoeretab[Q_NO$AlderHoeretab=="Ca.8 år"] = "8"
+Q_NO$AlderHoeretab[Q_NO$AlderHoeretab=="Født med det"] = "0"
+Q_NO$AlderHoeretab=as.integer(Q_NO$AlderHoeretab)
+Q_NO$AlderUdenGavnHoereapparat=as.integer(Q_NO$AlderUdenGavnHoereapparat)
+
+
+#------
+
+#Making ordered factor for listening habits before and after surgery
+Q_NO$LyttevanerPre=ordered(Q_NO$LyttevanerPre, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
+
+
+Q_NO$Lyttevaner=ordered(Q_NO$Lyttevaner, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
+
+#Adding years of deafness, age when getting the surgery, musical knowledge based on questionnaires
+ID=c("1","2","3","4","5","6","7","8","9","10")
+AarUdenHoerelse=c("8","3","0","2","16","0","0","1","9","1")
+Musikviden=c("3","2","3","4","2","2","2","5","5","2")
+AlderOP=Q_NO$Alder
+NO_doevedata=data.frame(ID,AarUdenHoerelse,AlderOP, Musikviden)
+
+
+Q_NO=merge(Q_NO, NO_doevedata,by="ID")
+
+#removing stuff--------
+
+Q_NO=within(Q_NO, rm(Uddyb))
+Q_NO=within(Q_NO, rm(TaleTelefonUD.))
+Q_NO=within(Q_NO, rm(TinnitusUD.))
+Q_NO=within(Q_NO, rm(HoereapparatUD.))
+
+#-----
+
+Q_NO$Musikviden=ordered(Q_NO$Musikviden, levels = c("1", "2", "3", "4", "5"))
+
+Q_NO$AlderOP=as.integer(Q_NO$AlderOP)
+Q_NO$AarUdenHoerelse=as.integer(Q_NO$AarUdenHoerelse)
+
+write.csv(Q_NO, file="Q_NO")
+
+#Importing questionnaire from experienced CI users
+
+Q_ER=read.csv2("Spørgeskema_EO.csv", header=TRUE, sep=",")
+#names(Q_ER)
+#Renaming------
+Q_ER=plyr::rename(Q_ER, c("Dato.for.første.operation"="DatoOp1", "Dato.for.evt..anden.operation"="DatoOp2", "Hvor.gammel.var.du.da.de.høretab.opstod"="AlderHoeretab", "Hvor.gammel.var.du.da.dit.høretab.blev.så.alvorligt.at.du.ikke.længere.havde.gavn.af.dit.høreapparat" = "AlderUdenGavnHoereapparat", "Kan.du.tale.i.telefon"="TaleTelefon", "Uddyb.1"="TaleTelefonUD.", "Havde.du.tinnitus.inden.din.CI.operation"="TinnitusPre", "Har.du.tinnitus.nu"="TinnitusPost", "Uddyb.2"="TinnitusUD.", "Bruger.du.høreapparat"="Hoereapparat", "Uddyb.3"="HøreapparatUD.",  "Jeg.vælger.at.lytte.til.musik..f.eks..bevidst.at.høre.radio.i.bilen.eller.hjemme..gå.til.koncerter..se.musikprogrammer.i.fjernsynet..osv.."="Lyttevaner"  ))
+#--------
+
+Q_ER$Køn=as.character(Q_ER$Køn)
+Q_ER$Køn[Q_ER$Køn =="mand"] = "Mand"
+Q_ER$Køn=as.factor(Q_ER$Køn)
+#Q_ER=within(Q_ER, rm(Navn))
+
+#Creating ordered factor for listening habits
+Q_ER$Lyttevaner=ordered(Q_ER$Lyttevaner, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
+
+Q_ER$AlderUdenGavnHoereapparat=as.character(Q_ER$AlderUdenGavnHoereapparat)
+Q_ER$AlderUdenGavnHoereapparat[Q_ER$AlderUdenGavnHoereapparat=="Havde gavn af det helt frem til CI operation"] = "56"
+Q_ER$AlderUdenGavnHoereapparat=as.integer(Q_ER$AlderUdenGavnHoereapparat)
+
+#Removing stuff ------
+
+Q_ER=within(Q_ER, rm(Uddyb))
+Q_ER=within(Q_ER, rm(TaleTelefonUD.))
+Q_ER=within(Q_ER, rm(TinnitusUD.))
+Q_ER=within(Q_ER, rm(HøreapparatUD.))
+
+#------
+
+#Adding years of deafness, age when getting surgery, musical knowledge based on questionnaires
+ID=c("201","202","203","204","205","206","207","208","209","210", "211")
+AarUdenHoerelse=c("4","0","0","2","0","3","0","0","0","1","1")
+AlderOP=c("62","39","47","47","56","50","42","59","73","36","25")
+Musikviden=c("2","4","4","2","5","2","2","2","4","4","2")
+
+ER_doevedata=data.frame(ID,AarUdenHoerelse, AlderOP, Musikviden)
+
+Q_ER=merge(Q_ER,ER_doevedata, by="ID")
+
+#Making music knowledge to an ordered factor
+Q_ER$Musikviden=ordered(Q_ER$Musikviden, levels = c("1", "2", "3", "4", "5"))
+
+Q_ER$AlderOP=as.integer(Q_ER$AlderOP)
+Q_ER$AarUdenHoerelse=as.integer(Q_ER$AarUdenHoerelse)
+
+write.csv(Q_ER, file="Q_ER")
+
+# Importing questionnaire from young control group
+Q_KU=read.csv2("Spørgeskema_KU.csv", header=TRUE, sep=";")
+#names(Q_KU)
+#Renaming------
+
+Q_KU=plyr::rename(Q_KU, c(  "Jeg.vælger.at.lytte.til.musik..f.eks..bevidst.at.høre.radio.i.bilen.eller.hjemme..gå.til.koncerter..se.musikprogrammer.i.fjernsynet..osv.."="Lyttevaner"  ))
+#------
+
+#Making listening habits an ordered factor
+Q_KU$Lyttevaner=ordered(Q_KU$Lyttevaner, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
+
+#Adding music knowledge based on questionnaire
+ID=c("101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117")
+Musikviden=c("5","4","2","5","4","4","5","4","4","4","4","5","5","4","4","2","4")
+
+UK_musik=data.frame(ID,Musikviden)
+
+Q_KU=merge(Q_KU,UK_musik, by="ID")
+
+#Q_KU=within(Q_KU, rm(Navn))
+
+#Making music knowledge an ordered factor
+Q_KU$Musikviden=ordered(Q_KU$Musikviden, levels = c("1", "2", "3", "4", "5"))
+
+write.csv(Q_KU, file="Q_KU")
+
+#Importing questionnaire from older controls
+
+Q_KÆ=read.csv2("Spørgeskema_KÆ.csv", header=TRUE, sep=";")
+#Renaming------
+
+Q_KÆ=plyr::rename(Q_KÆ, c("Jeg.vælger.at.lytte.til.musik..f.eks..bevidst.at.høre.radio.i.bilen.eller.hjemme..gå.til.koncerter..se.musikprogrammer.i.fjernsynet..osv.."="Lyttevaner"  ))
+#------
+
+#Making listening habits into an ordered factor
+Q_KÆ$Lyttevaner=ordered(Q_KÆ$Lyttevaner, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
+
+#Adding music knowledge based on the questionnaire
+ID=c("301","302","303","304","305","306","307","308","309","310","311","312","313","314")
+Musikviden=c("4","2","4","4","2","2","4","4","3","4","1","2","2","2")
+
+ÆK_musik=data.frame(ID,Musikviden)
+
+Q_KÆ=merge(Q_KÆ,ÆK_musik, by="ID")
+
+#Q_KÆ=within(Q_KÆ, rm(Navn))
+
+#Making music knowledge into an ordered factor
+Q_KÆ$Musikviden=ordered(Q_KÆ$Musikviden, levels = c("1", "2", "3", "4", "5"))
+
+write.csv(Q_KÆ, file="Q_KÆ")
+
+
+
+
+#Merging different data to get all data
+NO_all=merge(NO,Q_NO,by="ID")
+ER_all=merge(ER,Q_ER,by="ID")
+
+
+KU_all=merge(UK, Q_KU, by="ID")
+ÆK_all=merge(ÆK, Q_KÆ, by="ID")
+
+CIData=dplyr::bind_rows(NO_all, ER_all)
+
+CIData$Group="CI"
+
+Control=dplyr::bind_rows(KU_all, ÆK_all)
+
+Control$Group="Control"
+
+Control$Correct=as.integer(Control$Correct)
+CIData$Correct=as.integer(CIData$Correct)
+
+AllData=dplyr::bind_rows(CIData, Control)
+
+
+write.csv(AllData, file="AltData")
+
+
+
+```
+
+
+
+```{r}
+#Analysis
+
+
+AllData$Correct=as.integer(AllData$Correct)
+CIData$Correct=as.integer(CIData$Correct)
+
+
+write.csv(CIData, file="CIData")
+
+
+
+sum(AllData$Correct[AllData$Condition=="CI_re"])
+#603
+sum(AllData$Correct[AllData$Condition=="CI_ex"])
+#709
+sum(AllData$Correct[AllData$Condition=="Control_e"])
+#1095
+sum(AllData$Correct[AllData$Condition=="Control_y"])
+#1506
+
+
+#Subsetting data into different deviants
+PitchData <- subset(AllData, Deviant=="Pitch")
+sum(PitchData$Correct[PitchData$Condition=="CI_re"])
+#185
+
+sum(PitchData$Correct[PitchData$Condition=="CI_ex"])
+#178
+
+sum(PitchData$Correct[PitchData$Condition=="Control_e"])
+#313
+
+sum(PitchData$Correct[PitchData$Condition=="Control_y"])
+#404
+
+RhythmData <- subset(AllData, Deviant=="Rhythm")
+
+TimbreData <- subset(AllData, Deviant=="Timbre")
+IntensityData <- subset(AllData, Deviant=="Intensitet")
+
+
+
+#Pirate plot based on intensity data
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = IntensityData, main = "Intensity Results", xlab = "Intensity Deviant",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+
+#Pirate plot based on pitch data
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = PitchData, main = "Pitch Results", xlab = "Intensity Deviant",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+#Pirate plot based on timbre data
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = TimbreData, main = "Timbre Results", xlab = "Intensity Deviant",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+#Pirate plot based on rhythm data
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = RhythmData, main = "Rhythm Results", xlab = "Intensity Deviant",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+
+#Creating a model with accuracy based on an interaction btw group, deviant type and deviant level (All data)
+m1=glmer(Correct~Group*Deviant*DeviantLevel+(1|ID), data=AllData, family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+summary(m1)
+
+#Pirateplot based on AllData across deviant levels
+pirateplot(formula = Correct ~ Group + DeviantLevel, data = AllData, main = "Results", xlab = "group",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+#Creating a model with accuracy based on an interaction btw condition and age when getting the surgery (CI data)
+m2=glmer(Correct~Condition*AlderOP+(1|ID), data=CIData, family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+summary(m2)
+
+#Creating a pirateplot based on CI data across conditions and deviant levels
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = CIData, main = "Results", xlab = "group",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+#Creating a model with accuracy based on an interaction btw condition and age when getting the surgery + the years of deafness (CI data)
+m3=glmer(Correct~Condition*AlderOP+AarUdenHoerelse+(1|ID), data=CIData, family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+summary(m3)
+
+anova(m2,m3)
+
+#Creating a model with accuracy based on an interaction btw condition and age when getting the surgery + years of deafness + music knowledge (CI data)
+m4=glmer(Correct~Condition*AlderOP+AarUdenHoerelse+Musikviden+(1|ID), data=CIData, family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+summary(m4)
+
+#Creating a model with accuracy based on an interaction btw condition and age when getting the surgery + years of deafness + music knowledge + deviant level (CI data)
+M5=glmer(Correct~Condition*AlderOP+AarUdenHoerelse+Musikviden+DeviantLevel+(1|ID), data=CIData, family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+summary(M5)
+
+#Creating a model with accuracy based on an interaction btw condition and age when getting the surgery + years of deafness + music knowledge + an interaction btw condition, deviant type, and deviant level + listening habits (CI data) ------- this was the model used in the thesis
+M6=glmer(Correct~Condition*AlderOP+AarUdenHoerelse+Musikviden+Condition*Deviant*DeviantLevel+Lyttevaner+(1|ID), data=CIData, family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+summary(M6)
+
+
+#Comparing models to find the best model
+anova(m2,m3,m4,M5, M6)
+
+#Creating a null model to compare with best model
+Nullmodel=glmer(Correct~1+(1|ID), data=CIData, family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+#Comparing null model to best model
+anova(Nullmodel,M6)
+
+#M7=glmer(Correct~Condition*AlderOP+Musikviden+DeviantLevel+(1|ID), data=CIData, family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(M7)
+
+
+
+#Creating a pirateplot based on CI data across music knowledge and deviant level
+pirateplot(formula = Correct ~ Musikviden + DeviantLevel, data = CIData, main = "Results", xlab = "group",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.33, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed")
+
+
+#Creating a pirateplit based on CI data acoss age when getting the surgery and deviant level
+pirateplot(formula = Correct ~ AlderOP + DeviantLevel, data = CIData, main = "Results", xlab = "group",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed")
+
+#Creating a ggplot based on CI data with accuracy across condition based on age when getting a surgery
+ggplot(CIData, aes(AlderOP, Correct, color=Condition))+geom_smooth(method=lm)
+
+#Creating a ggplot based on CI data with accuracy across condition based on listening habits
+ggplot(CIData, aes(as.numeric(Lyttevaner), Correct, color=Condition))+geom_smooth(method=glm)
+
+
+#Creating a pirateplot based on CI data across condition, deviant type and deviant level
+pirateplot(formula = Correct ~ Condition + Deviant + DeviantLevel, data = CIData, main = "Results", xlab = "group",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed")
+
+
+
+#Calculating r squared for different models to see how much variance each model explains
+r.squaredGLMM(m2)
+r.squaredGLMM(m3)
+r.squaredGLMM(m4)
+r.squaredGLMM(M5)
+r.squaredGLMM(M6)
+
+#Subsetting CI data into the different deviant types
+PitchCI <- subset(CIData, Deviant=="Pitch")
+
+
+RhythmCI <- subset(CIData, Deviant=="Rhythm")
+
+
+#m10=glmer(Correct~Condition*DeviantLevel+(1|ID), data=RhythmCI, family=binomial,  control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m10)
+
+
+
+TimbreCI <- subset(CIData, Deviant=="Timbre")
+
+
+IntensityCI <- subset(CIData, Deviant=="Intensitet")
+
+
+
+
+
+mean(Q_NO$Alder) #=59.88889
+max(Q_NO$Alder) #=80
+min(Q_NO$Alder) #=34
+sum(Q_NO$Køn=="Kvinde") #=2 (3 med Hanne)
+
+mean(Q_ER$Alder) #=56.09
+max(Q_ER$Alder) #=77
+min(Q_ER$Alder) #=34
+sum(Q_ER$Køn=="Kvinde") #=9
+
+mean(Q_KU$Alder) #25.35
+max(Q_KU$Alder) #=31
+min(Q_KU$Alder) #=21
+sum(Q_KU$Køn=="Kvinde") #=9
+
+mean(Q_KÆ$Alder) #=63.428
+max(Q_KÆ$Alder) #=77
+min(Q_KÆ$Alder) #=55
+sum(Q_KÆ$Køn=="Kvinde")#=7
+```
+
+
+```{r}
+
+#Creating plots within each deviant type for CI users only
+
+#Intensity
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = IntensityCI, main = "Intensity Results", xlab = "Intensity Deviant",ylab="Correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+
+#Pitch
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = PitchCI, main = "Pitch Results", xlab = "Pitch Deviant",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+#Timbre
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = TimbreCI, main = "Timbre Results", xlab = "Timbre Deviant",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+#Rhythm
+pirateplot(formula = Correct ~ Condition + DeviantLevel, data = RhythmCI, main = "Rhythm Results", xlab = "Rhythm Deviant",ylab="Percentage correct", ylim= c(0,1), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed") 
+
+
+
+
+
+```
