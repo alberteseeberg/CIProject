@@ -820,11 +820,30 @@ pirateplot(formula = RawPercent ~ Condition + DeviantLevel + Deviant, data = CID
 
 
 ```
-
+### ikke normalt fordelt -- så kan vel ikke lave ANOVA -- skal det være Kruskal-Wallis test? Mood's test? Friedman's test?
 
 ## Inspecting best performing models
 ```{r}
+library(ggpubr)
 
+ggdensity(CIData$AarUdenHoerelse, 
+          main = "Density plot of years without hearing",
+          xlab = "Years without hearing")
+
+shapiro.test(CIData$AarUdenHoerelse)
+
+
+ggdensity(CIData$Alder, 
+          main = "Density plot of age",
+          xlab = "Age")
+
+shapiro.test(CIData$Alder)
+
+ggdensity(CIData$RawPercent, 
+          main = "Density plot raw percent score",
+          xlab = "Raw percent score")
+
+shapiro.test(CIData$RawPercent)
 
 ```
 
