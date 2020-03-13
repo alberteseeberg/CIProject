@@ -820,21 +820,11 @@ pirateplot(formula = RawPercent ~ Condition * DeviantLevel * Deviant, data = CID
   abline(a=0.3,0.3, b=0, lwd=2, lty="dashed")
 
 
-
-pirateplot(formula = RawPercent ~ Condition + DeviantLevel + Deviant, data = CIDataPlot, main = "Results", xlab = "group",ylab="% Correct", ylim= c(45,85), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
-  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed")
-
-
-
-
-ggplot(data=CIData, aes(x=DeviantLevel, y=RawPercent))+geom_violin()+facet_wrap("Deviant")
-
-
-ggplot(make_pred_dat(), aes(x=IVContinuousA, y=DV, colour=IVCategorical)) + 
-  geom_line() +
-  facet_grid(. ~ round(IVContinuousB,2)) +
-  ggtitle("IVContinuousA vs. DV, by Level of IVContinousB") +
-  labs(colour="")
+# ggplot(make_pred_dat(), aes(x=IVContinuousA, y=DV, colour=IVCategorical)) + 
+#   geom_line() +
+#   facet_grid(. ~ round(IVContinuousB,2)) +
+#   ggtitle("IVContinuousA vs. DV, by Level of IVContinousB") +
+#   labs(colour="")
 
 # garcia_plot <- function(data, x = "Deviant",
 #                         y = "RawPercent",
@@ -868,8 +858,10 @@ ggplot(make_pred_dat(), aes(x=IVContinuousA, y=DV, colour=IVCategorical)) +
 ## New data set with average percentage for each deviant + deviant level per participant
 ```{r}
 
+#Making a data frame from the CIData, containing only these variables
 CIDataPlot=aggregate(CIData$Correct,list(CIData$DeviantLevel, CIData$Deviant, CIData$ID), mean)
 
+#Renaming 
 
 CIDataPlot=plyr::rename(CIDataPlot, c("Group.1"="DeviantLevel"))
 CIDataPlot=plyr::rename(CIDataPlot, c("Group.2"="Deviant"))
@@ -881,11 +873,27 @@ CIDataPlot=plyr::rename(CIDataPlot, c("x"="AvCor"))
 
 CIDataPlot$Condition = CIData[match(CIDataPlot$ID, CIData$ID),"Condition"]
 
+# Convert to percentage
+
 CIDataPlot$AvCor = CIDataPlot$AvCor*100
 
 
-pirateplot(formula = AvCor ~ Condition + DeviantLevel + Deviant, data = CIDataPlot, main = "", xlab = "group",ylab="Averaged % Correct", ylim= c(0,100), theme=2, pal="info", cex.lab = 0.7, cex.axis = 1, cex.names = 0.7, avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+#Plotting the average percentage correct for both groups for each deviant level in each deviant
+
+pirateplot(formula = AvCor ~ Condition + DeviantLevel + Deviant, data = CIDataPlot, main = "", xlab = "group",ylab="Averaged % Correct", ylim= c(0,100), theme=2, pal="info", cex.lab = 1, cex.axis = 1, cex.names = 0.7, avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
   abline(a=33,33, b=0, lwd=1, lty="dashed")
+
+
+#Plotting the average percentage correct for both groups for each deviant
+
+pirateplot(formula = AvCor ~ Condition + Deviant, data = CIDataPlot, main = "Results", xlab = "group",ylab="Averaged % Correct", ylim= c(0,100), theme=2, pal="info", cex.lab = 1, cex.axis = 1, cex.names = 1, avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=33,33, b=0, lwd=2, lty="dashed")
+
+
+#Plotting the average percentage correct for each deviant level within each deviant
+
+pirateplot(formula = AvCor ~ DeviantLevel + Deviant, data = CIDataPlot, main = "Results", xlab = "group",ylab="Averaged % Correct", ylim= c(0,100), theme=2, pal="info", cex.lab = 0.9, cex.axis = 0.8, cex.names = 0.8, avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=33,33, b=0, lwd=2, lty="dashed")
 
 ```
 
