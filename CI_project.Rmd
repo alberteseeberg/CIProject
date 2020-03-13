@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 #Setting working directory
 setwd("~/Desktop/Bachelor CogSci/5. semester/Bachelor/Data/Bachelor")
 
+
 #Loading packages
 library(stringr)
 library(plyr)
@@ -51,18 +52,18 @@ NO$Condition="CI_re"
 
 #Making Deviants--------
 
-NO$Deviant[NO$No == "1"] = "IntensitetXS"  
-NO$Deviant[NO$No == "17"] = "IntensitetXS"  
-NO$Deviant[NO$No == "33"] = "IntensitetXS"  
-NO$Deviant[NO$No == "2"] = "IntensitetS" 
-NO$Deviant[NO$No == "18"] = "IntensitetS"  
-NO$Deviant[NO$No == "34"] = "IntensitetS"
-NO$Deviant[NO$No == "3"] = "IntensitetL"  
-NO$Deviant[NO$No == "19"] = "IntensitetL"  
-NO$Deviant[NO$No == "35"] = "IntensitetL"  
-NO$Deviant[NO$No == "4"] = "IntensitetXL"  
-NO$Deviant[NO$No == "20"] = "IntensitetXL"  
-NO$Deviant[NO$No == "36"] = "IntensitetXL"
+NO$Deviant[NO$No == "1"] = "IntensityXS"  
+NO$Deviant[NO$No == "17"] = "IntensityXS"  
+NO$Deviant[NO$No == "33"] = "IntensityXS"  
+NO$Deviant[NO$No == "2"] = "IntensityS" 
+NO$Deviant[NO$No == "18"] = "IntensityS"  
+NO$Deviant[NO$No == "34"] = "IntensityS"
+NO$Deviant[NO$No == "3"] = "IntensityL"  
+NO$Deviant[NO$No == "19"] = "IntensityL"  
+NO$Deviant[NO$No == "35"] = "IntensityL"  
+NO$Deviant[NO$No == "4"] = "IntensityXL"  
+NO$Deviant[NO$No == "20"] = "IntensityXL"  
+NO$Deviant[NO$No == "36"] = "IntensityXL"
 NO$Deviant[NO$No == "5"] = "PitchXS" 
 NO$Deviant[NO$No == "21"] = "PitchXS" 
 NO$Deviant[NO$No == "37"] = "PitchXS" 
@@ -168,18 +169,18 @@ ER$Condition="CI_ex"
 
 #Making Deviants--------
 
-ER$Deviant[ER$No == "1"] = "IntensitetXS"  
-ER$Deviant[ER$No == "17"] = "IntensitetXS"  
-ER$Deviant[ER$No == "33"] = "IntensitetXS"  
-ER$Deviant[ER$No == "2"] = "IntensitetS" 
-ER$Deviant[ER$No == "18"] = "IntensitetS"  
-ER$Deviant[ER$No == "34"] = "IntensitetS"
-ER$Deviant[ER$No == "3"] = "IntensitetL"  
-ER$Deviant[ER$No == "19"] = "IntensitetL"  
-ER$Deviant[ER$No == "35"] = "IntensitetL"  
-ER$Deviant[ER$No == "4"] = "IntensitetXL"  
-ER$Deviant[ER$No == "20"] = "IntensitetXL"  
-ER$Deviant[ER$No == "36"] = "IntensitetXL"
+ER$Deviant[ER$No == "1"] = "IntensityXS"  
+ER$Deviant[ER$No == "17"] = "IntensityXS"  
+ER$Deviant[ER$No == "33"] = "IntensityXS"  
+ER$Deviant[ER$No == "2"] = "IntensityS" 
+ER$Deviant[ER$No == "18"] = "IntensityS"  
+ER$Deviant[ER$No == "34"] = "IntensityS"
+ER$Deviant[ER$No == "3"] = "IntensityL"  
+ER$Deviant[ER$No == "19"] = "IntensityL"  
+ER$Deviant[ER$No == "35"] = "IntensityL"  
+ER$Deviant[ER$No == "4"] = "IntensityXL"  
+ER$Deviant[ER$No == "20"] = "IntensityXL"  
+ER$Deviant[ER$No == "36"] = "IntensityXL"
 ER$Deviant[ER$No == "5"] = "PitchXS" 
 ER$Deviant[ER$No == "21"] = "PitchXS" 
 ER$Deviant[ER$No == "37"] = "PitchXS" 
@@ -283,18 +284,18 @@ UK$Condition="Control_y"
 
 #Making Deviants--------
 
-UK$Deviant[UK$No == "1"] = "IntensitetXS"  
-UK$Deviant[UK$No == "17"] = "IntensitetXS"  
-UK$Deviant[UK$No == "33"] = "IntensitetXS"  
-UK$Deviant[UK$No == "2"] = "IntensitetS" 
-UK$Deviant[UK$No == "18"] = "IntensitetS"  
-UK$Deviant[UK$No == "34"] = "IntensitetS"
-UK$Deviant[UK$No == "3"] = "IntensitetL"  
-UK$Deviant[UK$No == "19"] = "IntensitetL"  
-UK$Deviant[UK$No == "35"] = "IntensitetL"  
-UK$Deviant[UK$No == "4"] = "IntensitetXL"  
-UK$Deviant[UK$No == "20"] = "IntensitetXL"  
-UK$Deviant[UK$No == "36"] = "IntensitetXL"
+UK$Deviant[UK$No == "1"] = "IntensityXS"  
+UK$Deviant[UK$No == "17"] = "IntensityXS"  
+UK$Deviant[UK$No == "33"] = "IntensityXS"  
+UK$Deviant[UK$No == "2"] = "IntensityS" 
+UK$Deviant[UK$No == "18"] = "IntensityS"  
+UK$Deviant[UK$No == "34"] = "IntensityS"
+UK$Deviant[UK$No == "3"] = "IntensityL"  
+UK$Deviant[UK$No == "19"] = "IntensityL"  
+UK$Deviant[UK$No == "35"] = "IntensityL"  
+UK$Deviant[UK$No == "4"] = "IntensityXL"  
+UK$Deviant[UK$No == "20"] = "IntensityXL"  
+UK$Deviant[UK$No == "36"] = "IntensityXL"
 UK$Deviant[UK$No == "5"] = "PitchXS" 
 UK$Deviant[UK$No == "21"] = "PitchXS" 
 UK$Deviant[UK$No == "37"] = "PitchXS" 
@@ -397,18 +398,18 @@ write.csv(UK, file="UKdata")
 
 #Making Deviants--------
 
-ÆK$Deviant[ÆK$No == "1"] = "IntensitetXS"  
-ÆK$Deviant[ÆK$No == "17"] = "IntensitetXS"  
-ÆK$Deviant[ÆK$No == "33"] = "IntensitetXS"  
-ÆK$Deviant[ÆK$No == "2"] = "IntensitetS" 
-ÆK$Deviant[ÆK$No == "18"] = "IntensitetS"  
-ÆK$Deviant[ÆK$No == "34"] = "IntensitetS"
-ÆK$Deviant[ÆK$No == "3"] = "IntensitetL"  
-ÆK$Deviant[ÆK$No == "19"] = "IntensitetL"  
-ÆK$Deviant[ÆK$No == "35"] = "IntensitetL"  
-ÆK$Deviant[ÆK$No == "4"] = "IntensitetXL"  
-ÆK$Deviant[ÆK$No == "20"] = "IntensitetXL"  
-ÆK$Deviant[ÆK$No == "36"] = "IntensitetXL"
+ÆK$Deviant[ÆK$No == "1"] = "IntensityXS"  
+ÆK$Deviant[ÆK$No == "17"] = "IntensityXS"  
+ÆK$Deviant[ÆK$No == "33"] = "IntensityXS"  
+ÆK$Deviant[ÆK$No == "2"] = "IntensityS" 
+ÆK$Deviant[ÆK$No == "18"] = "IntensityS"  
+ÆK$Deviant[ÆK$No == "34"] = "IntensityS"
+ÆK$Deviant[ÆK$No == "3"] = "IntensityL"  
+ÆK$Deviant[ÆK$No == "19"] = "IntensityL"  
+ÆK$Deviant[ÆK$No == "35"] = "IntensityL"  
+ÆK$Deviant[ÆK$No == "4"] = "IntensityXL"  
+ÆK$Deviant[ÆK$No == "20"] = "IntensityXL"  
+ÆK$Deviant[ÆK$No == "36"] = "IntensityXL"
 ÆK$Deviant[ÆK$No == "5"] = "PitchXS" 
 ÆK$Deviant[ÆK$No == "21"] = "PitchXS" 
 ÆK$Deviant[ÆK$No == "37"] = "PitchXS" 
@@ -815,35 +816,76 @@ anova(m0,m1,m2,m3,m4,m5,m6,m7)
 
 CIData$RawPercent = as.numeric(str_remove_all(CIData$RawPercentScore, "[ %]"))
 
-pirateplot(formula = RawPercent ~ Condition + DeviantLevel + Deviant, data = CIData, main = "Results", xlab = "group",ylab="% Correct", ylim= c(45,85), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+pirateplot(formula = RawPercent ~ Condition * DeviantLevel * Deviant, data = CIData, main = "Results", xlab = "group",ylab="% Correct", ylim= c(45,85), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
   abline(a=0.3,0.3, b=0, lwd=2, lty="dashed")
 
+
+
+pirateplot(formula = RawPercent ~ Condition + DeviantLevel + Deviant, data = CIDataPlot, main = "Results", xlab = "group",ylab="% Correct", ylim= c(45,85), theme=2, pal="info", avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=0.3,0.3, b=0, lwd=2, lty="dashed")
+
+
+
+
+ggplot(data=CIData, aes(x=DeviantLevel, y=RawPercent))+geom_violin()+facet_wrap("Deviant")
+
+
+ggplot(make_pred_dat(), aes(x=IVContinuousA, y=DV, colour=IVCategorical)) + 
+  geom_line() +
+  facet_grid(. ~ round(IVContinuousB,2)) +
+  ggtitle("IVContinuousA vs. DV, by Level of IVContinousB") +
+  labs(colour="")
+
+# garcia_plot <- function(data, x = "Deviant",
+#                         y = "RawPercent",
+#                         fill = "Condition", title, Q_type){
+# 
+#   ggplot(data, aes_string(x=x, y=y, fill = fill)) +
+#     geom_boxplot(outlier.shape = NA, alpha=.40)+
+#     geom_dotplot(binaxis='y', stackdir='center', stackratio=0.9, dotsize=1)+
+#     xlab("") + ylab(Q_type) + ggtitle(title) +
+#     scale_fill_manual(values = c("#F59749", "#1192A8")) +
+#     scale_y_continuous(breaks=seq(0, 100, 25), limits=c(0, 100)) +
+#     theme_light()+
+#     theme(legend.position="none",
+#           axis.text.y = element_text(colour="grey20",size=13),
+#           axis.text.x = element_text(size=13),
+#           plot.title = element_text(colour="grey20",size=15, hjust = 0.5))
+# 
+# }
+# 
+# (Action_garcia <- garcia_plot(
+#   data = Action,
+#   title = "",
+#   Q_type = "ACTION VERBS"))
+
+# ggsave(width = 4, height = 5, filename="Action_garcia_12.png", 
+#        path = "~/Dropbox/Parkinson_embodied/1_Research_Article/Plots_all_texts/Plots")
 
 ```
 ### ikke normalt fordelt -- så kan vel ikke lave ANOVA -- skal det være Kruskal-Wallis test? Mood's test? Friedman's test?
 
-## Inspecting best performing models
+## New data set with average percentage for each deviant + deviant level per participant
 ```{r}
-library(ggpubr)
 
-ggdensity(CIData$AarUdenHoerelse, 
-          main = "Density plot of years without hearing",
-          xlab = "Years without hearing")
-
-shapiro.test(CIData$AarUdenHoerelse)
+CIDataPlot=aggregate(CIData$Correct,list(CIData$DeviantLevel, CIData$Deviant, CIData$ID), mean)
 
 
-ggdensity(CIData$Alder, 
-          main = "Density plot of age",
-          xlab = "Age")
+CIDataPlot=plyr::rename(CIDataPlot, c("Group.1"="DeviantLevel"))
+CIDataPlot=plyr::rename(CIDataPlot, c("Group.2"="Deviant"))
+CIDataPlot=plyr::rename(CIDataPlot, c("Group.3"="ID"))
+CIDataPlot=plyr::rename(CIDataPlot, c("x"="AvCor"))
 
-shapiro.test(CIData$Alder)
 
-ggdensity(CIData$RawPercent, 
-          main = "Density plot raw percent score",
-          xlab = "Raw percent score")
+#Append the condition to the new dataframe from the old dataframe  by ID 
 
-shapiro.test(CIData$RawPercent)
+CIDataPlot$Condition = CIData[match(CIDataPlot$ID, CIData$ID),"Condition"]
+
+CIDataPlot$AvCor = CIDataPlot$AvCor*100
+
+
+pirateplot(formula = AvCor ~ Condition + DeviantLevel + Deviant, data = CIDataPlot, main = "", xlab = "group",ylab="Averaged % Correct", ylim= c(0,100), theme=2, pal="info", cex.lab = 0.7, cex.axis = 1, cex.names = 0.7, avg.line.o=0.8, bar.f.o = .2, bean.b.o = .7, point.o = 0.3, point.pch = 1, back.col = "white") +
+  abline(a=33,33, b=0, lwd=1, lty="dashed")
 
 ```
 
