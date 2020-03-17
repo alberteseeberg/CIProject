@@ -32,8 +32,9 @@ library(cvms)
 
 ```
 
-## Preprocessing of data
+## Preprocessing 3-AFC data
 ```{r}
+
 
 #Importing data from patients w. recent surgery
 NO <- do.call("rbind", lapply( list.files("~/Desktop/Bachelor CogSci/5. semester/Bachelor/Data/Bachelor/NO",full=TRUE),
@@ -151,7 +152,7 @@ for (i in 1:nrow(NO)) {
 }
 
 
-write.csv(NO, file="NOdata")
+write.csv(NO, file="NOdata.csv")
 
 
 #Importing data from experienced CI users
@@ -267,7 +268,7 @@ for (i in 1:nrow(ER)) {
   
 }
 
-write.csv(ER, file="ERdata")
+write.csv(ER, file="ERdata.csv")
 
 #Importing young control group
 
@@ -381,7 +382,7 @@ for (i in 1:nrow(UK)) {
   
 }
 
-write.csv(UK, file="UKdata")
+write.csv(UK, file="UKdata.csv")
 
 #Importing older control group
 
@@ -496,7 +497,14 @@ for (i in 1:nrow(ÆK)) {
 }
 
 
-write.csv(ÆK, file="ÆKdata")
+write.csv(ÆK, file="ÆKdata.csv")
+
+```
+
+
+## Preprocessing of questionnaire data
+```{r}
+
 
 #Importing questionnaire from patients w. recent surgery
 
@@ -522,8 +530,10 @@ Q_NO$Køn[6]=Q_NO$Køn[6]="Mand"
 
 Q_NO$Køn[Q_NO$Køn =="mand"] = "Mand"
 
+Q_NO$Køn=as.character(Q_NO$Køn)
+
 Q_NO$Køn[Q_NO$Køn =="Mand"] = "1"
-Q_NO$Køn[Q_NO$Køn =="Kvinde"] = "1"
+Q_NO$Køn[Q_NO$Køn =="Kvinde"] = "2"
 
 #Q_NO=within(Q_NO, rm(Navn))
 
@@ -547,11 +557,12 @@ Q_NO$LyttevanerPre=ordered(Q_NO$LyttevanerPre, levels = c("0-2 timer", "3-5 time
 Q_NO$Lyttevaner=ordered(Q_NO$Lyttevaner, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
 
 #Adding years of deafness, age when getting the surgery, musical knowledge based on questionnaires
-ID=c("1","2","3","4","5","6","7","8","9","10")
-AarUdenHoerelse=c("8","3","0","2","16","0","0","1","9","1")
-Musikviden=c("3","2","3","4","2","2","2","5","5","2")
+ID=c("1","2","3","4","5","6","7","8","9","10","11","12")
+AarUdenHoerelse=c("8","3","0","2","16","0","0","1","9","1","2","1")
+Musikviden=c("3","2","3","4","2","2","2","5","5","2","5","4")
+Musikglaede=c("6","4","3","6","2","5","6","6","2","3","4","4")
 AlderOP=Q_NO$Alder
-NO_doevedata=data.frame(ID,AarUdenHoerelse,AlderOP, Musikviden)
+NO_doevedata=data.frame(ID,AarUdenHoerelse,AlderOP, Musikviden, Musikglaede)
 
 
 Q_NO=merge(Q_NO, NO_doevedata,by="ID")
@@ -566,11 +577,12 @@ Q_NO=within(Q_NO, rm(HoereapparatUD.))
 #-----
 
 Q_NO$Musikviden=ordered(Q_NO$Musikviden, levels = c("1", "2", "3", "4", "5"))
+Q_NO$Musikglaede=ordered(Q_NO$Musikglaede, levels = c("1", "2", "3", "4", "5", "6","7"))
 
 Q_NO$AlderOP=as.integer(Q_NO$AlderOP)
 Q_NO$AarUdenHoerelse=as.integer(Q_NO$AarUdenHoerelse)
 
-write.csv(Q_NO, file="Q_NO")
+write.csv(Q_NO, file="Q_NO.csv")
 
 #Importing questionnaire from experienced CI users
 
@@ -586,7 +598,7 @@ Q_ER$Køn=as.factor(Q_ER$Køn)
 #Q_ER=within(Q_ER, rm(Navn))
 
 Q_ER$Køn[Q_ER$Køn =="Mand"] = "1"
-Q_ER$Køn[Q_ER$Køn =="Kvinde"] = "1"
+Q_ER$Køn[Q_ER$Køn =="Kvinde"] = "2"
 
 #Creating ordered factor for listening habits
 Q_ER$Lyttevaner=ordered(Q_ER$Lyttevaner, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
@@ -605,22 +617,24 @@ Q_ER=within(Q_ER, rm(HøreapparatUD.))
 #------
 
 #Adding years of deafness, age when getting surgery, musical knowledge based on questionnaires
-ID=c("201","202","203","204","205","206","207","208","209","210", "211")
-AarUdenHoerelse=c("4","0","0","2","0","3","0","0","0","1","1")
-AlderOP=c("62","39","47","47","56","50","42","59","73","36","25")
-Musikviden=c("2","4","4","2","5","2","2","2","4","4","2")
+ID=c("201","202","203","204","205","206","207","208","209","210","211", "212", "213","214","215")
+AarUdenHoerelse=c("4","0","0","2","0","3","0","0","0","1","1","4","0","1","0")
+AlderOP=c("62","39","47","47","56","50","42","59","73","36","25","61","17","55","67")
+Musikviden=c("2","4","4","2","5","2","2","2","4","4","2","4","2","2","2")
+Musikglaede = c("5","3","5","7","4","4","4","7","2","6","7","1","7","5","2")
 
-ER_doevedata=data.frame(ID,AarUdenHoerelse, AlderOP, Musikviden)
+ER_doevedata=data.frame(ID,AarUdenHoerelse, AlderOP, Musikviden, Musikglaede)
 
 Q_ER=merge(Q_ER,ER_doevedata, by="ID")
 
 #Making music knowledge to an ordered factor
 Q_ER$Musikviden=ordered(Q_ER$Musikviden, levels = c("1", "2", "3", "4", "5"))
+Q_ER$Musikglaede=ordered(Q_ER$Musikglaede, levels = c("1", "2", "3", "4", "5", "6","7"))
 
 Q_ER$AlderOP=as.integer(Q_ER$AlderOP)
 Q_ER$AarUdenHoerelse=as.integer(Q_ER$AarUdenHoerelse)
 
-write.csv(Q_ER, file="Q_ER")
+write.csv(Q_ER, file="Q_ER.csv")
 
 # Importing questionnaire from young control group
 Q_KU=read.csv2("Spørgeskema_KU.csv", header=TRUE, sep=";")
@@ -633,8 +647,10 @@ Q_KU=plyr::rename(Q_KU, c(  "Jeg.vælger.at.lytte.til.musik..f.eks..bevidst.at.h
 #Making listening habits an ordered factor
 Q_KU$Lyttevaner=ordered(Q_KU$Lyttevaner, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
 
+Q_KU$Køn=as.character(Q_KU$Køn)
+
 Q_KU$Køn[Q_KU$Køn =="Mand"] = "1"
-Q_KU$Køn[Q_KU$Køn =="Kvinde"] = "1"
+Q_KU$Køn[Q_KU$Køn =="Kvinde"] = "2"
 
 #Adding music knowledge based on questionnaire
 ID=c("101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117")
@@ -649,7 +665,7 @@ Q_KU=merge(Q_KU,UK_musik, by="ID")
 #Making music knowledge an ordered factor
 Q_KU$Musikviden=ordered(Q_KU$Musikviden, levels = c("1", "2", "3", "4", "5"))
 
-write.csv(Q_KU, file="Q_KU")
+write.csv(Q_KU, file="Q_KU.csv")
 
 #Importing questionnaire from older controls
 
@@ -662,8 +678,10 @@ Q_KÆ=plyr::rename(Q_KÆ, c("Jeg.vælger.at.lytte.til.musik..f.eks..bevidst.at.h
 #Making listening habits into an ordered factor
 Q_KÆ$Lyttevaner=ordered(Q_KÆ$Lyttevaner, levels = c("0-2 timer", "3-5 timer", "6-8 timer", "9 eller flere"))
 
+Q_KÆ$Køn=as.character(Q_KÆ$Køn)
+
 Q_KÆ$Køn[Q_KÆ$Køn =="Mand"] = "1"
-Q_KÆ$Køn[Q_KÆ$Køn =="Kvinde"] = "1"
+Q_KÆ$Køn[Q_KÆ$Køn =="Kvinde"] = "2"
 
 #Adding music knowledge based on the questionnaire
 ID=c("301","302","303","304","305","306","307","308","309","310","311","312","313","314")
@@ -678,12 +696,14 @@ Q_KÆ=merge(Q_KÆ,ÆK_musik, by="ID")
 #Making music knowledge into an ordered factor
 Q_KÆ$Musikviden=ordered(Q_KÆ$Musikviden, levels = c("1", "2", "3", "4", "5"))
 
-write.csv(Q_KÆ, file="Q_KÆ")
+write.csv(Q_KÆ, file="Q_KÆ.csv")
 
+```
 
+## Merge different datasets together
 
-
-#Merging different data to get all data
+```{r}
+##Merging different data to get all data
 NO_all=merge(NO,Q_NO,by="ID")
 ER_all=merge(ER,Q_ER,by="ID")
 
@@ -705,7 +725,8 @@ CIData$Correct=as.integer(CIData$Correct)
 AllData=dplyr::bind_rows(CIData, Control)
 
 
-write.csv(AllData, file="AltData")
+write.csv(AllData, file="AltData.csv")
+write.csv(CIData, file="CIData.csv")
 
 
 ```
@@ -776,6 +797,8 @@ results <- select_metrics(cv) %>%
 write.csv(results, file="CVresults.csv")
 
 ```
+
+
 
 ## Looking at the different models a little differently (02-2020 update with AH)
 ## I.e. looking at the two CI groups' performances on the 3 AFC - no covariates (yet)
