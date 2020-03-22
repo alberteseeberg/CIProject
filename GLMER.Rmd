@@ -1,0 +1,111 @@
+---
+title: "GLMER"
+author: "Alberte Baggesgaard Seeberg"
+date: "3/22/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+setwd("~/Desktop/Bachelor CogSci/5. semester/Bachelor/Data/Bachelor")
+
+#Loading packages
+library(stringr)
+library(plyr)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(hellno)
+library(apaTables)
+library(MuMIn)
+library(lme4)
+library(yarrr)
+```
+
+## READ DATA + CHANGE VARIABLES
+```{r}
+CIData = read.csv("CIData.csv")
+CIData = CIData[-1]
+
+CIData$RawPercentScore = as.character(CIData$RawPercentScore)
+CIData$ChanceCorrected = as.character(CIData$ChanceCorrected)
+CIData$Condition = as.character(CIData$Condition)
+CIData$Deviant = as.character(CIData$Deviant)
+CIData$DeviantLevel = as.numeric(CIData$DeviantLevel)
+CIData$Dato = as.character(CIData$Dato)
+CIData$Køn = as.character(CIData$Køn)
+CIData$DatoOp1 = as.character(CIData$DatoOp1)
+CIData$DatoOp2 = as.character(CIData$DatoOp2)
+CIData$TaleTelefon = as.character(CIData$TaleTelefon)
+CIData$TinnitusPre = as.character(CIData$TinnitusPre)
+CIData$TinnitusPost = as.character(CIData$TinnitusPost)
+CIData$Hoereapparat = as.character(CIData$Hoereapparat)
+CIData$Musikviden = ordered(CIData$Musikviden, levels = c("1","2","3","4","5"))
+CIData$Musikglaede=ordered(CIData$Musikglaede, levels = c("1", "2", "3", "4", "5", "6","7"))
+
+```
+
+## MODELS
+```{r}
+
+M0=glmer(Correct~1+(1|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+M1=glmer(Correct~AarUdenHoerelse+(1|ID)+(1+AarUdenHoerelse|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m1)
+
+M1a=glmer(Correct~AlderOP+(1|ID)+(1+AlderOP|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+M1b=glmer(Correct~Lyttevaner+(1|ID)+(1+Lyttevaner|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+M1c=glmer(Correct~Musikglaede+(1|ID)+(1+Musikglaede|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+M1d=glmer(Correct~Musikviden+(1|ID)+(1+Musikviden|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+M2=glmer(Correct~AarUdenHoerelse+AlderOP+(1|ID)+(1+AlderOP|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m2)
+
+M3=glmer(Correct~AarUdenHoerelse+AlderOP+Lyttevaner+(1|ID)+(1+Lyttevaner|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m3)
+
+M4=glmer(Correct~AarUdenHoerelse+AlderOP+Lyttevaner+Musikglaede+(1|ID)+(1+Musikglaede|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m4)
+
+
+M5=glmer(Correct~AarUdenHoerelse+AlderOP+Lyttevaner+Musikglaede+Musikviden+(1|ID)+(1+Musikviden|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m5)
+
+anova(M0,M1,M2,M3,M4,M5)
+
+
+anova(M0,M1)
+anova(M0,M1a)
+anova(M0,M1b)
+anova(M0,M1c)
+anova(M0,M1d)
+
+anova(M0,M5)
+
+anova(M0,M1,M5)
+
+
+```
+
+## PLOTS
+```{r}
+ggplot(CIData, aes(x = AarUdenHoerelse, y = Correct, color = Condition)) +
+  geom_point() +
+  geom_smooth(method='lm',formula=y~x)
+
+ggplot(CIData, aes(x = AlderOP, y = Correct, color = Condition)) +
+  geom_point() +
+  geom_smooth(method='lm',formula=y~x)
+
+ggplot(CIData, aes(as.numeric(Lyttevaner), Correct, color=Condition))+geom_smooth(method=glm)
+
+ggplot(CIData, aes(as.numeric(Musikviden), Correct, color=Condition))+geom_smooth(method=glm)
+
+ggplot(CIData, aes(as.numeric(Musikglaede), Correct, color=Condition))+geom_smooth(method=glm)
+
+```
+

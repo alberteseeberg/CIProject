@@ -701,7 +701,6 @@ write.csv(Q_KÆ, file="Q_KÆ.csv")
 ```
 
 ## Merge different datasets together
-
 ```{r}
 ##Merging different data to get all data
 NO_all=merge(NO,Q_NO,by="ID")
@@ -882,14 +881,22 @@ pirateplot(formula = RawPercent ~ Condition * DeviantLevel * Deviant, data = CID
 ```{r}
 
 #Making a data frame from the CIData, containing only these variables
-CIDataPlot=aggregate(CIData$Correct,list(CIData$DeviantLevel, CIData$Deviant, CIData$ID), mean)
+CIPlot=aggregate(CIData$Correct,list(CIData$ID), mean)
 
-#Renaming 
+CIPlot=plyr::rename(CIPlot, c("Group.1"="ID"))
+CIPlot=plyr::rename(CIPlot, c("x"="AvCor"))
 
-CIDataPlot=plyr::rename(CIDataPlot, c("Group.1"="DeviantLevel"))
-CIDataPlot=plyr::rename(CIDataPlot, c("Group.2"="Deviant"))
-CIDataPlot=plyr::rename(CIDataPlot, c("Group.3"="ID"))
-CIDataPlot=plyr::rename(CIDataPlot, c("x"="AvCor"))
+CI=merge(CIPlot,unique(CIData[c("ID","Alder","Lyttevaner",
+                                "AarUdenHoerelse", "Musikviden",
+                                "Musikglaede" )]),by="ID")
+
+# 
+# #Renaming 
+# 
+# CIDataPlot=plyr::rename(CIDataPlot, c("Group.1"="DeviantLevel"))
+# CIDataPlot=plyr::rename(CIDataPlot, c("Group.2"="Deviant"))
+# CIDataPlot=plyr::rename(CIDataPlot, c("Group.3"="ID"))
+# CIDataPlot=plyr::rename(CIDataPlot, c("x"="AvCor"))
 
 
 #Append the condition to the new dataframe from the old dataframe  by ID 
@@ -921,18 +928,157 @@ pirateplot(formula = AvCor ~ DeviantLevel + Deviant, data = CIDataPlot, main = "
 ```
 
 
-## Plotting significant results
+### Ny data
 ```{r}
+#Making a data frame from the CIData, containing only these variables
+CIPlot=aggregate(CIData$Correct,list(CIData$ID), mean)
+
+CIPlot=plyr::rename(CIPlot, c("Group.1"="ID"))
+CIPlot=plyr::rename(CIPlot, c("x"="AvCor"))
+
+
+
+CI=merge(CIPlot,unique(CIData[c("ID","Condition","AlderOP","Lyttevaner",
+                                "AarUdenHoerelse", "Musikviden",
+                                "Musikglaede" )]),by="ID")
+
+CI$AvCor = CI$AvCor*100
+
+## AvCor er det samme som RawPercentScore --- kunne have brugt unique til at få næsten samme værdier
+# 
+# #CItest = unique(CIData[c("ID","RawPercent", "Alder","Lyttevaner",
+#                                 "AarUdenHoerelse", "Musikviden",
+#                                 "Musikglaede" )])
+
+```
+
+
+### Modeller
+```{r}
+
+#Creating a null model to compare with best model
+m0=lmer(AvCor~1+(1|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+#Creating a model with Group as a factor
+m1=lmer(AvCor~AarUdenHoerelse+(1+AarUdenHoerelse|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m1)
+
+m1a=lmer(AvCor~AlderOP+(1+AlderOP|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+m1b=lmer(AvCor~Lyttevaner+(1+Lyttevaner|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+m1c=lmer(AvCor~Musikglaede+(1+Musikglaede|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+m1d=lmer(AvCor~Musikviden+(1+Musikviden|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+#Creating a model with Group (aka. Condition) and Deviant Type as factors
+m2=lmer(AvCor~AarUdenHoerelse+AlderOP+(1+AlderOP|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m2)
+
+#Creating a model with Group, Deviant Type and Deviant Level as factors
+m3=lmer(AvCor~AarUdenHoerelse+AlderOP+Lyttevaner+(1+Lyttevaner|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m3)
+
+#Creating a model with the three factors + Condition:Deviant interaction
+m4=lmer(AvCor~AarUdenHoerelse+AlderOP+Lyttevaner+Musikglaede+(1+Musikglaede|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m4)
+
+#Creating a model with the three factors + Condition:Deviant + Condition:DeviantLevel interactions
+m5=lmer(AvCor~AarUdenHoerelse+AlderOP+Lyttevaner+Musikglaede+Musikviden+(1+Musikviden|Condition), data=CI, control = lmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m5)
+
+anova(m0,m1,m2,m3,m4,m5)
+
+anova(m0,m5)
+
+anova(m0,m1)
+anova(m0,m1a)
+anova(m0,m1b)
+anova(m0,m1c)
+anova(m0,m1d)
+
+
+
+ggplot(CI, aes(x = AarUdenHoerelse, y = AvCor, color = Condition)) +
+  geom_point() +
+  geom_smooth(method='lm',formula=y~x)
+
+ggplot(CI, aes(x = AlderOP, y = AvCor, color = Condition)) +
+  geom_point() +
+  geom_smooth(method='lm',formula=y~x)
+
+ggplot(CI, aes(as.numeric(Lyttevaner), AvCor, color=Condition))+geom_point()+geom_smooth(method=glm)
+
+ggplot(CI, aes(as.numeric(Musikviden), AvCor, color=Condition))+geom_point()+geom_smooth(method=glm)
+
+ggplot(CI, aes(as.numeric(Musikglaede), AvCor, color=Condition))+geom_point()+geom_smooth(method=glm)
 
 
 ```
 
+
+### Running the same using glmer instead and binomial outcome
 ```{r}
+#Creating a null model to compare with best model
+M0=glmer(Correct~1+(1|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+#Creating a model with Group as a factor
+M1=glmer(Correct~AarUdenHoerelse+(1|ID)+(1+AarUdenHoerelse|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m1)
+
+M1a=glmer(Correct~AlderOP+(1|ID)+(1+AlderOP|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+M1b=glmer(Correct~Lyttevaner+(1|ID)+(1+Lyttevaner|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+M1c=glmer(Correct~Musikglaede+(1|ID)+(1+Musikglaede|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+M1d=glmer(Correct~Musikviden+(1|ID)+(1+Musikviden|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+
+#Creating a model with Group (aka. Condition) and Deviant Type as factors
+M2=glmer(Correct~AarUdenHoerelse+AlderOP+(1|ID)+(1+AlderOP|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m2)
+
+#Creating a model with Group, Deviant Type and Deviant Level as factors
+M3=glmer(Correct~AarUdenHoerelse+AlderOP+Lyttevaner+(1|ID)+(1+Lyttevaner|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m3)
+
+#Creating a model with the three factors + Condition:Deviant interaction
+M4=glmer(Correct~AarUdenHoerelse+AlderOP+Lyttevaner+Musikglaede+(1|ID)+(1+Musikglaede|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m4)
+
+#Creating a model with the three factors + Condition:Deviant + Condition:DeviantLevel interactions
+M5=glmer(Correct~AarUdenHoerelse+AlderOP+Lyttevaner+Musikglaede+Musikviden+(1|ID)+(1+Musikviden|Condition), data=CIData,family=binomial, control = glmerControl(optimizer = "nloptwrap", calc.derivs = FALSE))
+#summary(m5)
+
+anova(M0,M1,M2,M3,M4,M5)
 
 
-```
+anova(M0,M1)
+anova(M0,M1a)
+anova(M0,M1b)
+anova(M0,M1c)
+anova(M0,M1d)
 
-```{r}
+anova(M0,M5)
+
+anova(M0,M1,M5)
+
+
+ggplot(CIData, aes(x = AarUdenHoerelse, y = Correct, color = Condition)) +
+  geom_point() +
+  geom_smooth(method='lm',formula=y~x)
+
+ggplot(CIData, aes(x = AlderOP, y = Correct, color = Condition)) +
+  geom_point() +
+  geom_smooth(method='lm',formula=y~x)
+
+ggplot(CIData, aes(as.numeric(Lyttevaner), Correct, color=Condition))+geom_smooth(method=glm)
+
+ggplot(CIData, aes(as.numeric(Musikviden), Correct, color=Condition))+geom_smooth(method=glm)
+
+ggplot(CIData, aes(as.numeric(Musikglaede), Correct, color=Condition))+geom_smooth(method=glm)
+
+
 
 
 ```
